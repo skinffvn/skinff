@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SkinFF VIP</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+
+body {
+  background: #0a0a14;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  min-height: 100vh;
+}
+
+.app-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 22px;
+  letter-spacing: 0.5px;
+}
+
+.search-box {
+  background: #1a1a2e;
+  border-radius: 26px;
+  padding: 13px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.search-icon { font-size: 16px; opacity: 0.55; }
+
+#searchInput {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 15px;
+  flex: 1;
+  user-select: text;
+}
+
+#searchInput::placeholder { color: #555; }
+
+.category-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.category-tabs::-webkit-scrollbar { display: none; }
+
+.cat-tab {
+  background: #1a1a2e;
+  color: #888;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.cat-tab.active { background: #f5b94a; color: #2a1a00; }
+
+.skin-list { display: flex; flex-direction: column; gap: 14px; }
+
+.skin-card {
+  background: #1a1a2e;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  height: 180px;
+  transition: transform 0.15s;
+}
+
+.skin-card:active { transform: scale(0.97); }
+
+.skin-card-bg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+
+.skin-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+  padding: 18px 16px 14px;
+}
+
+.skin-card-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.skin-card-subtitle { font-size: 12px; color: #ccc; opacity: 0.85; }
+
+.skin-card-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(245, 185, 74, 0.95);
+  color: #2a1a00;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.skin-installed-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(74, 200, 74, 0.95);
+  color: #052a05;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.bg-phong-lon { background: radial-gradient(ellipse at 30% 60%, #5aaa3a 0%, #2a5a1a 40%, #0a2a05 100%); }
+.bg-minecraft { background: linear-gradient(135deg, #7a5aaa 0%, #4a3a7a 50%, #1a1a3a 100%); }
+.bg-hoat-anh { background: linear-gradient(135deg, #aa3a7a 0%, #6a2a5a 50%, #2a1a3a 100%); }
+.bg-groza { background: linear-gradient(135deg, #ff6b9d 0%, #ffd93d 45%, #6bcfff 100%); }
+.bg-mp40 { background: linear-gradient(135deg, #ff4a4a 0%, #aa1a1a 50%, #2a0505 100%); }
+.bg-awm { background: linear-gradient(135deg, #4a7aff 0%, #1a3aaa 50%, #050a2a 100%); }
+.bg-m1014 { background: linear-gradient(135deg, #ffaa3a 0%, #aa6a1a 50%, #2a1a05 100%); }
+.bg-character { background: linear-gradient(135deg, #aa7aff 0%, #5a3aaa 50%, #2a1a5a 100%); }
+.bg-ak { background: linear-gradient(135deg, #3affaa 0%, #1aaa6a 50%, #052a1a 100%); }
+.bg-scar { background: linear-gradient(135deg, #ff7a4a 0%, #aa3a1a 50%, #2a1005 100%); }
+.bg-bundle { background: linear-gradient(135deg, #ffd93d 0%, #aa8a1a 50%, #2a2005 100%); }
+.bg-emote { background: linear-gradient(135deg, #ff3aff 0%, #aa1aaa 50%, #2a052a 100%); }
+
+#page-detail {
+  position: fixed;
+  inset: 0;
+  background: #0a0a14;
+  overflow-y: auto;
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.25s ease-out;
+}
+
+#page-detail.show { transform: translateX(0); }
+
+.detail-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 16px 40px;
+}
+
+.back-btn {
+  background: #1a1a2e;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 50%;
+  margin-bottom: 14px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn:active { background: #2a2a4e; }
+
+.detail-card {
+  background: #1f1530;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.detail-title { font-size: 19px; font-weight: 700; margin-bottom: 14px; }
+
+.detail-image {
+  width: 100%;
+  height: 170px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.detail-thumb-row { display: flex; gap: 6px; margin-bottom: 16px; }
+
+.detail-thumb {
+  flex: 1;
+  height: 50px;
+  border-radius: 6px;
+  opacity: 0.85;
+}
+
+.detail-section { font-size: 14px; margin-bottom: 14px; }
+.detail-section-title { font-weight: 600; margin-bottom: 6px; color: #fff; }
+.detail-section-text { color: #bbb; line-height: 1.65; font-size: 13.5px; }
+
+.video-link {
+  color: #ff6b6b;
+  font-size: 13px;
+  text-decoration: underline;
+  display: block;
+  margin: 14px 0 18px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  background: #f5b94a;
+  color: #4a2a00;
+  border: none;
+  border-radius: 26px;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: transform 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:active { background: #e0a838; transform: scale(0.98); }
+
+.btn:disabled {
+  background: #6a5a3a;
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Modal popup tải */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s;
+}
+
+.modal-overlay.show { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  background: #1f1530;
+  border-radius: 18px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  animation: popIn 0.25s ease-out;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  background: #2a2a4e;
+}
+
+.modal-icon.success { background: #1a5a1a; }
+.modal-icon.loading { background: #2a3a5e; }
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.modal-text {
+  color: #bbb;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+/* Thanh tiến trình */
+.progress-wrap {
+  background: #2a2a4e;
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #f5b94a, #ffd93d);
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  transition: width 0.3s ease-out;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 14px;
+}
+
+.modal-btn {
+  background: #f5b94a;
+  color: #4a2a00;
+  border: none;
+  border-radius: 22px;
+  padding: 12px 30px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+}
+
+.modal-btn:active { background: #e0a838; }
+
+/* Spinner */
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #2a3a5e;
+  border-top-color: #f5b94a;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Checkmark animation */
+.checkmark {
+  width: 36px;
+  height: 36px;
+  position: relative;
+}
+
+.checkmark::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 4px;
+  width: 10px;
+  height: 20px;
+  border: solid #4ade4a;
+  border-width: 0 4px 4px 0;
+  transform: rotate(45deg);
+  animation: drawCheck 0.4s ease-out;
+}
+
+@keyframes drawCheck {
+  0% { height: 0; width: 0; }
+  50% { height: 0; width: 10px; }
+  100% { height: 20px; width: 10px; }
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #2a4a2a;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 24px;
+  font-size: 14px;
+  z-index: 1000;
+  transition: transform 0.3s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  max-width: 90%;
+  text-align: center;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+.empty {
+  text-align: center;
+  color: #555;
+  padding: 50px 20px;
+  font-size: 14px;
+}
+
+/* Skin-icons giữ chỗ nhỏ phải dưới */
+.skin-icons {
+  position: absolute;
+  bottom: 14px;
+  right: 12px;
+  display: flex;
+  gap: 4px;
+  opacity: 0.7;
+}
+
+.skin-icon-mini {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+</style>
+</head>
+<body>
+
+<div id="page-list" class="container">
+  <h1 class="app-title">SkinFF VIP</h1>
+
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Tìm nhân vật, súng..." oninput="filterSkins()">
+  </div>
+
+  <div class="category-tabs">
+    <button class="cat-tab active" onclick="setCategory('all', this)">Tất cả</button>
+    <button class="cat-tab" onclick="setCategory('sung', this)">Súng</button>
+    <button class="cat-tab" onclick="setCategory('nhanvat', this)">Nhân vật</button>
+    <button class="cat-tab" onclick="setCategory('hoatanh', this)">Hoạt ảnh</button>
+    <button class="cat-tab" onclick="setCategory('map', this)">Đồ họa</button>
+    <button class="cat-tab" onclick="setCategory('bundle', this)">Bundle</button>
+  </div>
+
+  <div id="skinList" class="skin-list"></div>
+</div>
+
+<div id="page-detail">
+  <div class="detail-container">
+    <button class="back-btn" onclick="goBack()">←</button>
+    <div class="detail-card">
+      <div class="detail-title" id="detailTitle"></div>
+      <div class="detail-image" id="detailImage"></div>
+      <div class="detail-thumb-row">
+        <div class="detail-thumb" id="detailThumb1"></div>
+        <div class="detail-thumb" id="detailThumb2"></div>
+        <div class="detail-thumb" id="detailThumb3"></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-title">Cần chuẩn bị:</div>
+        <div class="detail-section-text" id="detailRequire"></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-title">Cách cài:</div>
+        <div class="detail-section-text">
+          1) Vào xóa gói mở rộng của vũ khí<br>
+          2) Tải lại súng tương ứng
+        </div>
+      </div>
+      <a class="video-link" onclick="openVideo()">▶ Video hướng dẫn cách cài</a>
+      <button class="btn" id="btnThuong" onclick="downloadSkin('thuong')">FF Thường</button>
+      <button class="btn" id="btnMax" onclick="downloadSkin('max')">FF Max</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal đang tải -->
+<div class="modal-overlay" id="modalDownload">
+  <div class="modal">
+    <div class="modal-icon loading" id="modalIcon">
+      <div class="spinner"></div>
+    </div>
+    <div class="modal-title" id="modalTitle">Đang tải skin...</div>
+    <div class="modal-text" id="modalText">Vui lòng đợi trong giây lát</div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">0%</div>
+    <button class="modal-btn" id="modalBtn" onclick="closeModal()" style="display:none;">Đã hiểu</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const allSkins = [
+  { id:"groza", title:"Groza Địa Chấn Sắc Màu", subtitle:"Súng Groza phong xã rực rỡ", category:"sung", bgClass:"bg-groza", require:"☑ Súng Groza phong xã", hot:true, size:"2.4 MB" },
+  { id:"phong-lon", title:"Phóng Lợn", subtitle:"Chảo dưa hấu, gậy đầu bếp sát thủ...", category:"hoatanh", bgClass:"bg-phong-lon", require:"☑ Bộ skin Phóng Lợn", hot:true, size:"4.1 MB" },
+  { id:"minecraft", title:"Đồ Họa Minecraft OB53", subtitle:"Full map trừ Đảo Quân Sự", category:"map", bgClass:"bg-minecraft", require:"☑ Map Minecraft OB53", hot:true, size:"18.6 MB" },
+  { id:"hoat-anh", title:"Full Hoạt Ảnh", subtitle:"Bộ mộng cảnh - Hoạt Ảnh FFMAX", category:"hoatanh", bgClass:"bg-hoat-anh", require:"☑ Bộ hoạt ảnh FFMAX", size:"6.2 MB" },
+  { id:"mp40", title:"MP40 Rồng Vàng", subtitle:"Sát thương cực mạnh, hiệu ứng lửa", category:"sung", bgClass:"bg-mp40", require:"☑ Súng MP40", hot:true, size:"3.0 MB" },
+  { id:"awm", title:"AWM Băng Giá", subtitle:"Phát một viên hạ gục mọi đối thủ", category:"sung", bgClass:"bg-awm", require:"☑ Súng AWM", size:"2.8 MB" },
+  { id:"m1014", title:"M1014 Lửa Địa Ngục", subtitle:"Shotgun cận chiến cháy nổ", category:"sung", bgClass:"bg-m1014", require:"☑ Súng M1014", size:"2.5 MB" },
+  { id:"alok", title:"Nhân Vật DJ Alok", subtitle:"Hồi máu + tăng tốc độ chạy", category:"nhanvat", bgClass:"bg-character", require:"☑ Nhân vật Alok", size:"5.1 MB" },
+  { id:"ak", title:"AK Rồng Xanh", subtitle:"Tốc độ bắn cao, độ giật thấp", category:"sung", bgClass:"bg-ak", require:"☑ Súng AK47", size:"3.2 MB" },
+  { id:"scar", title:"SCAR Megalodon", subtitle:"Skin biển cả, hiệu ứng nước", category:"sung", bgClass:"bg-scar", require:"☑ Súng SCAR", size:"3.4 MB" },
+  { id:"bundle-vip", title:"Bundle VIP Hoàng Gia", subtitle:"Trọn bộ trang phục + phụ kiện", category:"bundle", bgClass:"bg-bundle", require:"☑ Slot bundle trống", hot:true, size:"8.7 MB" },
+  { id:"emote-vip", title:"Emote VIP Bộ 10", subtitle:"10 emote nhảy hiếm nhất", category:"hoatanh", bgClass:"bg-emote", require:"☑ Slot emote trống", size:"4.9 MB" }
+];
+
+let currentCategory = 'all';
+let currentSkin = null;
+let installedSkins = JSON.parse(localStorage.getItem('installed') || '[]');
+
+function renderSkins() {
+  const kw = document.getElementById('searchInput').value.toLowerCase().trim();
+  let list = allSkins;
+  if (currentCategory !== 'all') list = list.filter(s => s.category === currentCategory);
+  if (kw) list = list.filter(s =>
+    s.title.toLowerCase().includes(kw) || s.subtitle.toLowerCase().includes(kw));
+
+  const container = document.getElementById('skinList');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty">Không tìm thấy skin nào</div>';
+    return;
+  }
+  container.innerHTML = list.map(skin => `
+    <div class="skin-card" onclick="openDetail('${skin.id}')">
+      <div class="skin-card-bg ${skin.bgClass}"></div>
+      ${installedSkins.includes(skin.id) ? '<div class="skin-installed-badge">✓ ĐÃ CÀI</div>' : (skin.hot ? '<div class="skin-card-badge">HOT</div>' : '')}
+      <div class="skin-icons">
+        <div class="skin-icon-mini">🎮</div>
+        <div class="skin-icon-mini">⭐</div>
+      </div>
+      <div class="skin-card-overlay">
+        <div class="skin-card-title">${skin.title}</div>
+        <div class="skin-card-subtitle">${skin.subtitle}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterSkins() { renderSkins(); }
+
+function setCategory(cat, btn) {
+  currentCategory = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderSkins();
+}
+
+function openDetail(id) {
+  currentSkin = allSkins.find(s => s.id === id);
+  document.getElementById('detailTitle').textContent = currentSkin.title;
+  document.getElementById('detailImage').className = 'detail-image ' + currentSkin.bgClass;
+  document.getElementById('detailThumb1').className = 'detail-thumb ' + currentSkin.bgClass;
+  document.getElementById('detailThumb2').className = 'detail-thumb ' + currentSkin.bgClass;
+  document.getElementById('detailThumb3').className = 'detail-thumb ' + currentSkin.bgClass;
+  document.getElementById('detailRequire').innerHTML = currentSkin.require;
+  document.getElementById('page-detail').classList.add('show');
+}
+
+function goBack() {
+  document.getElementById('page-detail').classList.remove('show');
+}
+
+function downloadSkin(type) {
+  const label = type === 'thuong' ? 'FF Thường' : 'FF Max';
+  const overlay = document.getElementById('modalDownload');
+  const icon = document.getElementById('modalIcon');
+  const title = document.getElementById('modalTitle');
+  const text = document.getElementById('modalText');
+  const wrap = document.getElementById('progressWrap');
+  const bar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const btn = document.getElementById('modalBtn');
+
+  // Reset modal
+  icon.className = 'modal-icon loading';
+  icon.innerHTML = '<div class="spinner"></div>';
+  title.textContent = 'Đang tải skin...';
+  text.textContent = `${currentSkin.title} (${currentSkin.size}) cho ${label}`;
+  wrap.style.display = 'block';
+  progressText.style.display = 'block';
+  bar.style.width = '0%';
+  progressText.textContent = '0%';
+  btn.style.display = 'none';
+  overlay.classList.add('show');
+
+  // Disable buttons
+  document.getElementById('btnThuong').disabled = true;
+  document.getElementById('btnMax').disabled = true;
+
+  // Giả lập tải
+  let percent = 0;
+  const timer = setInterval(() => {
+    percent += Math.random() * 12 + 3;
+    if (percent >= 100) {
+      percent = 100;
+      bar.style.width = '100%';
+      progressText.textContent = '100%';
+      clearInterval(timer);
+
+      // Sang giai đoạn cài đặt
+      setTimeout(() => {
+        title.textContent = 'Đang cài đặt...';
+        text.textContent = 'Đang áp dụng skin vào game';
+
+        setTimeout(() => {
+          // HOÀN TẤT - hiện "Đã Xong"
+          icon.className = 'modal-icon success';
+          icon.innerHTML = '<div class="checkmark"></div>';
+          title.textContent = '✓ Đã Xong!';
+          text.textContent = `Skin "${currentSkin.title}" đã được cài đặt thành công cho ${label}.\n\nMở Free Fire và kiểm tra nhé!`;
+          wrap.style.display = 'none';
+          progressText.style.display = 'none';
+          btn.style.display = 'block';
+          btn.textContent = 'Đã hiểu';
+
+          // Lưu skin đã cài
+          if (!installedSkins.includes(currentSkin.id)) {
+            installedSkins.push(currentSkin.id);
+            localStorage.setItem('installed', JSON.stringify(installedSkins));
+          }
+
+          showToast('✓ Cài đặt skin thành công!');
+        }, 800);
+      }, 400);
+    } else {
+      bar.style.width = percent + '%';
+      progressText.textContent = Math.floor(percent) + '%';
+    }
+  }, 180);
+}
+
+function closeModal() {
+  document.getElementById('modalDownload').classList.remove('show');
+  document.getElementById('btnThuong').disabled = false;
+  document.getElementById('btnMax').disabled = false;
+  renderSkins(); // Cập nhật badge "Đã cài"
+}
+
+function openVideo() {
+  showToast('Đang mở video hướng dẫn...');
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+renderSkins();
+</script>
+</body>
+</html>
